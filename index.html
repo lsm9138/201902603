@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- 문서의 문자 인코딩 및 뷰포트 설정 -->
     <meta charset="EUC-KR">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 문서 제목 -->
     <title>월별 달력</title>
+    <!-- 스타일 시트 -->
     <style>
+        /* 테이블 스타일링 */
         table {
             border-collapse: collapse;
             width: 90%;
             margin: 20px auto;
         }
 
+        /* 테이블 헤더와 셀 스타일링 */
         th, td {
             border: 1px solid #ddd;
             padding: 40px;
@@ -19,17 +24,20 @@
             z-index: 1;
         }
 
+        /* 헤더 배경색 및 글자색 설정 */
         th {
             background-color: #000000;
             color: #ffffff;
         }
 
+        /* 현재 날짜에 대한 스타일링 */
         .current-day {
             background-color: #ff0000;
             color: #fff;
             font-weight: bold;
         }
 
+        /* 일정 텍스트 스타일링 */
         .event {
             font-size: 14px;
             font-weight: normal;
@@ -37,6 +45,7 @@
             margin-top: 5px;
         }
 
+        /* 전체 body 스타일링 */
         body {
             background-size: cover;
             background-repeat: no-repeat;
@@ -48,18 +57,22 @@
             background-size: 100% 100%;
         }
 
+        /* 현재 날짜 표시 부분 스타일링 */
         #current-date {
             margin-top: 20px;
         }
 
+        /* 날짜 선택 input 스타일링 */
         #date-picker {
             margin-bottom: 20px;
         }
 
+        /* 일정 추가 폼 스타일링 */
         #event-form {
             margin-bottom: 20px;
         }
 
+        /* 텍스트 그림자 설정 */
         th, td, #current-date {
             text-shadow: -1px -1px 0 #000,
                           1px -1px 0 #000,
@@ -67,6 +80,7 @@
                           1px  1px 0 #000;
         }
 
+        /* 일정 텍스트 그림자 설정 및 위치 지정 */
         .event {
             font-size: 14px;
             font-weight: normal;
@@ -86,17 +100,21 @@
 </head>
 <body>
 
+<!-- 현재 날짜 표시 -->
 <h2 id="current-date"></h2>
 
+<!-- 날짜 선택 input -->
 <label for="date-picker">날짜 선택: </label>
 <input type="date" id="date-picker" value="<?php echo date('Y-m-d'); ?>" onchange="generateCalendar()">
 
+<!-- 일정 추가 폼 -->
 <form id="event-form">
     <label for="event-text">일정 추가: </label>
     <input type="text" id="event-text" placeholder="일정을 입력하세요">
     <button type="button" onclick="addEvent()">추가</button>
 </form>
 
+<!-- 달력 테이블 -->
 <table>
     <thead>
     <tr>
@@ -113,45 +131,61 @@
     </tbody>
 </table>
 
+<!-- 스크립트 부분 -->
 <script>
+    // 일정을 저장할 객체
     var events = {};
+    // 현재 연도, 월, 날짜 정보를 저장할 변수
     var currentYear;
     var currentMonthText;
     var currentDate;
 
+    // 달력 생성 함수
     function generateCalendar() {
+        // 선택된 날짜 가져오기
         var selectedDate = new Date(document.getElementById("date-picker").value);
+        // 선택된 날짜가 유효하지 않으면 현재 날짜로 설정
         if (!selectedDate || isNaN(selectedDate.getTime())) {
             selectedDate = new Date();
             document.getElementById("date-picker").value = selectedDate.toISOString().split('T')[0];
         }
 
+        // 현재 연도, 월, 날짜 정보 업데이트
         currentYear = selectedDate.getFullYear();
         var currentMonth = selectedDate.getMonth();
         currentDate = selectedDate.getDate();
+        // 해당 월의 총 날짜 수, 첫 날의 요일, 달력 테이블 바디 요소 가져오기
         var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         var firstDay = new Date(currentYear, currentMonth, 1).getDay();
         var calendarBody = document.getElementById("calendar-body");
         calendarBody.innerHTML = '';
 
+        // 날짜 초기화
         var date = 1;
 
+        // 6주(행) 반복
         for (var i = 0; i < 6; i++) {
+            // 각 주(행) 생성
             var row = document.createElement("tr");
 
+            // 7일(열) 반복
             for (var j = 0; j < 7; j++) {
+                // 첫 주의 빈 셀 처리
                 if (i === 0 && j < firstDay) {
                     var cell = document.createElement("td");
                     var cellText = document.createTextNode("");
                     cell.appendChild(cellText);
                     row.appendChild(cell);
                 } else if (date > daysInMonth) {
+                    // 마지막 날짜를 넘으면 종료
                     break;
                 } else {
+                    // 날짜 셀 생성
                     var cell = document.createElement("td");
                     var cellText = document.createTextNode(date);
                     cell.appendChild(cellText);
 
+                    // 해당 날짜의 일정이 있으면 표시
                     var dateKey = getDateKey(currentYear, currentMonth, date);
                     if (events[dateKey] && events[dateKey].length > 0) {
                         for (var k = 0; k < events[dateKey].length; k++) {
@@ -162,57 +196,75 @@
                         }
                     }
 
+                    // 행에 날짜 셀 추가
                     row.appendChild(cell);
 
+                    // 현재 날짜면 스타일링 추가
                     if (date === currentDate) {
                         cell.classList.add("current-day");
                     }
 
+                    // 날짜 증가
                     date++;
                 }
             }
 
+            // 행을 테이블 바디에 추가
             calendarBody.appendChild(row);
         }
 
+        // 현재 날짜 및 시간 표시 업데이트
         currentMonthText = selectedDate.toLocaleString('default', { month: 'long' });
         var currentTime = selectedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
         document.getElementById("current-date").innerText = currentYear + "년 " + currentMonthText + " " + currentDate + "일 " + currentTime;
 
+        // 배경 이미지 변경
         document.body.style.backgroundImage = "url('" + getBackgroundImage(currentMonth) + "')";
     }
 
+    // 배경 이미지 파일명 생성 함수
     function getBackgroundImage(month) {
         return (month + 1) + ".png";
     }
 
+    // 일정 추가 함수
     function addEvent() {
+        // 선택된 날짜 가져오기
         var selectedDate = new Date(document.getElementById("date-picker").value);
+        // 선택된 날짜가 유효하지 않으면 종료
         if (!selectedDate || isNaN(selectedDate.getTime())) {
             return;
         }
 
+        // 입력된 일정 텍스트 가져오기
         var eventText = document.getElementById("event-text").value.trim();
+        // 일정이 없으면 종료
         if (!eventText) {
             return;
         }
 
+        // 해당 날짜의 키 생성
         var dateKey = getDateKey(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
+        // 일정이 없으면 빈 배열 생성
         if (!events[dateKey]) {
             events[dateKey] = [];
         }
 
+        // 일정 추가하고 달력 갱신
         events[dateKey].push(eventText);
         generateCalendar();
     }
 
+    // 날짜 키 생성 함수
     function getDateKey(year, month, day) {
         return year + '-' + (month + 1) + '-' + day;
     }
 
+    // 초기 달력 생성
     generateCalendar();
 
+    // 1초마다 현재 시간 갱신
     setInterval(function() {
         var currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
         document.getElementById("current-date").innerText = currentYear + "년 " + currentMonthText + " " + currentDate + "일 " + currentTime;
