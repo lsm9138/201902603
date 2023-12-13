@@ -3,7 +3,7 @@
 <head>
     <meta charset="EUC-KR">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¿ùº° ´Ş·Â</title>
+    <title>ì›”ë³„ ë‹¬ë ¥</title>
     <style>
         table {
             border-collapse: collapse;
@@ -88,25 +88,25 @@
 
 <h2 id="current-date"></h2>
 
-<label for="date-picker">³¯Â¥ ¼±ÅÃ: </label>
+<label for="date-picker">ë‚ ì§œ ì„ íƒ: </label>
 <input type="date" id="date-picker" value="<?php echo date('Y-m-d'); ?>" onchange="generateCalendar()">
 
 <form id="event-form">
-    <label for="event-text">ÀÏÁ¤ Ãß°¡: </label>
-    <input type="text" id="event-text" placeholder="ÀÏÁ¤À» ÀÔ·ÂÇÏ¼¼¿ä">
-    <button type="button" onclick="addEvent()">Ãß°¡</button>
+    <label for="event-text">ì¼ì • ì¶”ê°€: </label>
+    <input type="text" id="event-text" placeholder="ì¼ì •ì„ ì…ë ¥í•˜ì„¸ìš”">
+    <button type="button" onclick="addEvent()">ì¶”ê°€</button>
 </form>
 
 <table>
     <thead>
     <tr>
-        <th>ÀÏ</th>
-        <th>¿ù</th>
-        <th>È­</th>
-        <th>¼ö</th>
-        <th>¸ñ</th>
-        <th>±İ</th>
-        <th>Åä</th>
+        <th>ì¼</th>
+        <th>ì›”</th>
+        <th>í™”</th>
+        <th>ìˆ˜</th>
+        <th>ëª©</th>
+        <th>ê¸ˆ</th>
+        <th>í† </th>
     </tr>
     </thead>
     <tbody id="calendar-body">
@@ -177,7 +177,7 @@
 
         currentMonthText = selectedDate.toLocaleString('default', { month: 'long' });
         var currentTime = selectedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-        document.getElementById("current-date").innerText = currentYear + "³â " + currentMonthText + " " + currentDate + "ÀÏ " + currentTime;
+        document.getElementById("current-date").innerText = currentYear + "ë…„ " + currentMonthText + " " + currentDate + "ì¼ " + currentTime;
 
         document.body.style.backgroundImage = "url('" + getBackgroundImage(currentMonth) + "')";
     }
@@ -215,7 +215,7 @@
 
     setInterval(function() {
         var currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-        document.getElementById("current-date").innerText = currentYear + "³â " + currentMonthText + " " + currentDate + "ÀÏ " + currentTime;
+        document.getElementById("current-date").innerText = currentYear + "ë…„ " + currentMonthText + " " + currentDate + "ì¼ " + currentTime;
     }, 1000);
 </script>
 
