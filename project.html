@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="EUC-KR">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월별 달력</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 40px;
+            text-align: left;
+            position: relative;
+            z-index: 1;
+        }
+
+        th {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .current-day {
+            background-color: #ff0000;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .event {
+            font-size: 14px;
+            font-weight: normal;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            color: #fbf8f8;
+            background-size: 100% 100%;
+        }
+
+        #current-date {
+            margin-top: 20px;
+        }
+
+        #date-picker {
+            margin-bottom: 20px;
+        }
+
+        #event-form {
+            margin-bottom: 20px;
+        }
+
+        th, td, #current-date {
+            text-shadow: -1px -1px 0 #000,
+                          1px -1px 0 #000,
+                         -1px  1px 0 #000,
+                          1px  1px 0 #000;
+        }
+
+        .event {
+            font-size: 14px;
+            font-weight: normal;
+            color: #000;
+            margin-top: 5px;
+            text-shadow: -1px -1px 0 #ffffff,
+                          1px -1px 0 #ffffff,
+                         -1px  1px 0 #ffffff,
+                          1px  1px 0 #ffffff;
+            display: inline-block;
+            text-align: right; 
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2 id="current-date"></h2>
+
+<label for="date-picker">날짜 선택: </label>
+<input type="date" id="date-picker" value="<?php echo date('Y-m-d'); ?>" onchange="generateCalendar()">
+
+<form id="event-form">
+    <label for="event-text">일정 추가: </label>
+    <input type="text" id="event-text" placeholder="일정을 입력하세요">
+    <button type="button" onclick="addEvent()">추가</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>일</th>
+        <th>월</th>
+        <th>화</th>
+        <th>수</th>
+        <th>목</th>
+        <th>금</th>
+        <th>토</th>
+    </tr>
+    </thead>
+    <tbody id="calendar-body">
+    </tbody>
+</table>
+
+<script>
+    var events = {};
+    var currentYear;
+    var currentMonthText;
+    var currentDate;
+
+    function generateCalendar() {
+        var selectedDate = new Date(document.getElementById("date-picker").value);
+        if (!selectedDate || isNaN(selectedDate.getTime())) {
+            selectedDate = new Date();
+            document.getElementById("date-picker").value = selectedDate.toISOString().split('T')[0];
+        }
+
+        currentYear = selectedDate.getFullYear();
+        var currentMonth = selectedDate.getMonth();
+        currentDate = selectedDate.getDate();
+        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        var calendarBody = document.getElementById("calendar-body");
+        calendarBody.innerHTML = '';
+
+        var date = 1;
+
+        for (var i = 0; i < 6; i++) {
+            var row = document.createElement("tr");
+
+            for (var j = 0; j < 7; j++) {
+                if (i === 0 && j < firstDay) {
+                    var cell = document.createElement("td");
+                    var cellText = document.createTextNode("");
+                    cell.appendChild(cellText);
+                    row.appendChild(cell);
+                } else if (date > daysInMonth) {
+                    break;
+                } else {
+                    var cell = document.createElement("td");
+                    var cellText = document.createTextNode(date);
+                    cell.appendChild(cellText);
+
+                    var dateKey = getDateKey(currentYear, currentMonth, date);
+                    if (events[dateKey] && events[dateKey].length > 0) {
+                        for (var k = 0; k < events[dateKey].length; k++) {
+                            var eventText = document.createElement("div");
+                            eventText.className = "event";
+                            eventText.textContent = events[dateKey][k];
+                            cell.appendChild(eventText);
+                        }
+                    }
+
+                    row.appendChild(cell);
+
+                    if (date === currentDate) {
+                        cell.classList.add("current-day");
+                    }
+
+                    date++;
+                }
+            }
+
+            calendarBody.appendChild(row);
+        }
+
+        currentMonthText = selectedDate.toLocaleString('default', { month: 'long' });
+        var currentTime = selectedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+        document.getElementById("current-date").innerText = currentYear + "년 " + currentMonthText + " " + currentDate + "일 " + currentTime;
+
+        document.body.style.backgroundImage = "url('" + getBackgroundImage(currentMonth) + "')";
+    }
+
+    function getBackgroundImage(month) {
+        return (month + 1) + ".png";
+    }
+
+    function addEvent() {
+        var selectedDate = new Date(document.getElementById("date-picker").value);
+        if (!selectedDate || isNaN(selectedDate.getTime())) {
+            return;
+        }
+
+        var eventText = document.getElementById("event-text").value.trim();
+        if (!eventText) {
+            return;
+        }
+
+        var dateKey = getDateKey(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+
+        if (!events[dateKey]) {
+            events[dateKey] = [];
+        }
+
+        events[dateKey].push(eventText);
+        generateCalendar();
+    }
+
+    function getDateKey(year, month, day) {
+        return year + '-' + (month + 1) + '-' + day;
+    }
+
+    generateCalendar();
+
+    setInterval(function() {
+        var currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+        document.getElementById("current-date").innerText = currentYear + "년 " + currentMonthText + " " + currentDate + "일 " + currentTime;
+    }, 1000);
+</script>
+
+</body>
+</html>
